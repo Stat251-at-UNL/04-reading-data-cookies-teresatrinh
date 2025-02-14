@@ -98,7 +98,9 @@ You may want to use the `dplyr` package in R (`group_by` or `count` functions), 
 ```{r}
 library(dplyr)
 
-cookie %>% count(Ingredient, Recipe_Index, sort = TRUE) %>% count(Ingredient, sort = TRUE) %>% mutate(proportion = round((n/209), digits = 2)) %>% head(20)
+top_ingredients <- cookie %>% count(Ingredient, Recipe_Index, sort = TRUE) %>% count(Ingredient, sort = TRUE) %>% mutate(proportion = round((n/209), digits = 2)) 
+
+print(top_ingredients %>% head(20))
 
 ```
 
@@ -116,16 +118,33 @@ print(top_ingredient.head(20))
 
 ```{r}
 
+less_than_20 <- top_ingredients %>% filter(n < 20) %>% pull(Ingredient)
+
+less_than_20_string <- ""
+for (x in less_than_20) {
+  if (which(less_than_20 == x) != 1) {
+    less_than_20_string <- paste(less_than_20_string, x, sep = ", ")
+  } else {
+    less_than_20_string <- paste(less_than_20_string, x)
+  }
+}
+
+print(paste("Ingredients that are in less than 20 recipes:", less_than_20_string))
 
 ```
 
 ```{python}
 
+less_than_20 = top_ingredient[top_ingredient['count'] < 20]['Ingredient']
+
+less_than_20_string = ""
+
+for x in less_than_20:
+  less_than_20_string += x + ", "
+
+print(f'Ingredients that are in less than 20 recipes: {less_than_20_string[:-2]}')
 
 ```
-
-
-(Delete this note, but you can include data values inline in markdown text by using backticks, at least in R. For instance, here is R's built in value for pi: `r pi`. Unfortunately, this doesn't work in python using the knitr markdown engine, but you can print the list out in python anyways using a code chunk.)
 
 ### Visualization
 
@@ -133,4 +152,13 @@ Using whatever plotting system you are comfortable with in R or python, see if y
 
 [Part 1] Create at least one plot (it doesn't have to be pretty) that showcases an interesting facet of the data.
 
+```{r}
+library(ggplot2)
+ingredient_count <- count(cookie, Recipe_Index)
+ggplot(ingredient_count, aes(n)) + geom_histogram(bins = max(ingredient_count$n))
+
+```
+
 [Part 2] Write 2-3 sentences about what you can learn from that plot and what directions you might want to investigate from here.
+
+I plotted the distribution of the number of ingredients in a recipe. It is pretty evenly distirbuted. However there is a recipe with 1 ingredient, so I would like to investigate this recipe to see if it an outlier. 
